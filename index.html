@@ -1,317 +1,283 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aguas Hubero</title>
-<style>
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #608cac;
-    color: #151516;
-  }
-  header {
-    background-color: #639bdb;
-    color: rgb(7, 7, 7);
-    padding: 15px 10px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  header img {
-    width: 28px;
-    height: 28px;
-    margin-right: 10px;
-  }
-  main {
-    padding: 15px;
-  }
-  label, input, select, button {
-    display: block;
-    width: 100%;
-    font-size: 1rem;
-    margin-bottom: 15px;
-  }
-  input, select {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1.5px solid #050505;
-  }
-  button {
-    background-color: #4693e0;
-    color: rgb(6, 11, 22);
-    border: none;
-    padding: 10px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  #iconRepartidor {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #0d47a1;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    box-shadow: 0 0 10px #0d47a1aa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-  }
-  #modalRepartidor {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  #modalRepartidor.active {
-    display: flex;
-  }
-  #modalRepartidor .modal-content {
-    background: rgb(177, 170, 170);
-    padding: 20px 25px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 320px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    text-align: center;
-  }
-  #modalSuccess {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  #modalSuccess.active {
-    display: flex;
-  }
-  .success-box {
-    background-color: #132e44;
-    padding: 30px;
-    border-radius: 10px;
-    text-align: center;
-    color: rgb(218, 208, 208);
-    font-size: 1.3rem;
-    position: relative;
-  }
-  .success-box .circle {
-    background-color: #4caf50;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-  }
-  .confetti {
-    position: absolute;
-    width: 6px;
-    height: 16px;
-    background-color: #fff;
-    animation: fall 1s linear infinite;
-  }
-  @keyframes fall {
-    0% { transform: translateY(0) rotate(0); }
-    100% { transform: translateY(600px) rotate(360deg); }
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <img src="icons/Botella.png" alt="Icono Agua" />
-  <span style="flex: 1; text-align: center;">Aguas de poso Profundo
-    Aguas Uvero💦💦</span>
-  <img src="icons/Botella.png" alt="Pedidos Icon" style="width: 28px; height: 28px; margin-left: auto;" />
-</header>
-<main>
-  <form id="pedidoForm">
-    <label for="nombre">Nombre:</label>
-    <input type="text" id="nombre" placeholder="Tu nombre" required />
-    <label for="direccion">Dirección:</label>
-    <input type="text" id="direccion" placeholder="Tu dirección" required />
-    <label for="cantidad">Cantidad de botellas:</label>
-    <select id="cantidad" required>
-      <option value="" disabled selected>Selecciona cantidad</option>
-      <option value="1">1 botella</option>
-      <option value="2">2 botellas</option>
-      <option value="3">3 botellas</option>
-      <option value="4">4 botellas</option>
-      <option value="5">5 botellas</option>
-    </select>
-    <button type="submit">Realizar Pedido</button>
-  </form>
-</main>
-
-</div>
-<div id="iconRepartidor" title="Área Repartidor" aria-label="Área Repartidor">
-  <img src="icons/Gota.png" alt="Pedidos" style="width: 30px; height: 30px;" />
-</div>
-<div id="modalRepartidor">
-  <div class="modal-content">
-    <h2>Acceso Repartidor</h2>
-    <input type="password" id="passwordRepartidor" placeholder="Contraseña" />
-    <button id="btnEntrarRepartidor">Entrar</button>
-    <p id="errorPass" style="color:red;display:none">Contraseña incorrecta</p>
-  </div>
-</div>
-
-<div id="modalSuccess">
-  <div class="success-box">
-    <div class="circle">✔</div>
-    ¡Pedido realizado con éxito!
-  </div>
-</div>
-
-<script>
-const form = document.getElementById('pedidoForm');
-const modalSuccess = document.getElementById('modalSuccess');
-
-form.addEventListener('submit', e => {
-  e.preventDefault();
-
-  const nombre = form.nombre.value.trim();
-  const direccion = form.direccion.value.trim();
-  const cantidad = form.cantidad.value;
-
-  if (!nombre || !direccion || !cantidad) return;
-
-  const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
-  pedidos.push({ id: Date.now(), nombre, direccion, cantidad, entregado: false });
-  localStorage.setItem('pedidos', JSON.stringify(pedidos));
-  form.reset();
-
-  modalSuccess.classList.add('active');
-  for (let i = 0; i < 100; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    confetti.style.left = Math.random() * 100 + 'vw';
-    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    confetti.style.animationDuration = (Math.random() + 0.5) + 's';
-    document.body.appendChild(confetti);
-    setTimeout(() => confetti.remove(), 2000);
-  }
-  setTimeout(() => {
-    modalSuccess.classList.remove('active');
-  }, 3000);
-});
-
-document.getElementById('iconRepartidor').addEventListener('click', () => {
-  document.getElementById('modalRepartidor').classList.add('active');
-});
-
-document.getElementById('btnEntrarRepartidor').addEventListener('click', () => {
-  const input = document.getElementById('passwordRepartidor');
-  const pass = input.value;
-  if (pass === '12345') {
-    window.location.href = 'repartidor.html';
-  } else {
-    document.getElementById('errorPass').style.display = 'block';
-  }
-});
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <div class="carrusel">
-  <img id="imagenCarrusel" src="./images/imagen1.jpg" alt="Carrusel" />
-</div>
-
-<style>
-  .carrusel {
-    width: 100%;
-    max-width: 600px;
-    height: 200px;
-    margin: 0 auto 20px;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
-
-  .carrusel img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: opacity 1s ease-in-out;
-    border-radius: 12px;
-  }
-
-  @media (max-width: 600px) {
-    .carrusel {
-      height: 180px;
-    }
-  }
-
-  @media (max-width: 400px) {
-    .carrusel {
-      height: 150px;
-    }
-  }
-</style>
-
-<script>
-  const imagenes = [
-    'images/publi1.png',
-    'images/publi2.png',
-    
-  ];
-
-  let indice = 0;
-  const imgCarrusel = document.getElementById('imagenCarrusel');
-
-  setInterval(() => {
-    indice = (indice + 1) % imagenes.length;
-    imgCarrusel.style.opacity = 0;
-    setTimeout(() => {
-      imgCarrusel.src = imagenes[indice];
-      imgCarrusel.style.opacity = 1;
-    }, 500);
-  }, 6000);
-</script>
-<meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agua Ya - Inicio</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aguas Uvero</title>
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background-image: url('images/imagen1.jpg'); /* Aquí va la imagen de fondo */
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('images/imagen2.jpg'); /* Cambia por tu ruta */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      height: 100vh;
+      color: #151516;
     }
 
+    header {
+      background-color: #639bdb;
+      padding: 15px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    header img {
+      width: 28px;
+      height: 28px;
+      margin-right: 10px;
+    }
 
+    main {
+      padding: 15px;
+    }
 
+    label, input, select, button {
+      display: block;
+      width: 100%;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
 
+    input, select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1.5px solid #050505;
+    }
 
+    button {
+      background-color: #4693e0;
+      color: rgb(6, 11, 22);
+      border: none;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
+    #iconRepartidor {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #0d47a1;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #0d47a1aa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
 
+    #modalRepartidor,
+    #modalSuccess {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
 
+    #modalRepartidor.active,
+    #modalSuccess.active {
+      display: flex;
+    }
 
+    .modal-content, .success-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 320px;
+      text-align: center;
+    }
 
+    .success-box {
+      background-color: #132e44;
+      color: white;
+      font-size: 1.3rem;
+    }
+
+    .success-box .circle {
+      background-color: #4caf50;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 6px;
+      height: 16px;
+      background-color: #fff;
+      animation: fall 1s linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0); }
+      100% { transform: translateY(600px) rotate(360deg); }
+    }
+
+    .carrusel {
+      width: 100%;
+      max-width: 600px;
+      height: 200px;
+      margin: 20px auto;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .carrusel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 1s ease-in-out;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .carrusel { height: 180px; }
+    }
+
+    @media (max-width: 400px) {
+      .carrusel { height: 150px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="icons/Botella.png" alt="Icono Agua" />
+    <span style="flex: 1; text-align: center;">Aguas de poso Profundo Aguas Uvero 💦</span>
+    <img src="icons/Botella.png" alt="Pedidos Icon" />
+  </header>
+
+  <div class="carrusel">
+    <img id="imagenCarrusel" src="images/publi1.png" alt="Carrusel" />
+  </div>
+
+  <main>
+    <form id="pedidoForm">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" required />
+
+      <label for="direccion">Dirección:</label>
+      <input type="text" id="direccion" required />
+
+      <label for="cantidad">Cantidad de botellas:</label>
+      <select id="cantidad" required>
+        <option value="" disabled selected>Selecciona cantidad</option>
+        <option value="1">1 botella</option>
+        <option value="2">2 botellas</option>
+        <option value="3">3 botellas</option>
+        <option value="4">4 botellas</option>
+        <option value="5">5 botellas</option>
+      </select>
+
+      <button type="submit">Realizar Pedido</button>
+    </form>
+  </main>
+
+  <div id="iconRepartidor" title="Área Repartidor">
+    <img src="icons/Gota.png" alt="Pedidos" style="width: 30px;" />
+  </div>
+
+  <div id="modalRepartidor">
+    <div class="modal-content">
+      <h2>Acceso Repartidor</h2>
+      <input type="password" id="passwordRepartidor" placeholder="Contraseña" />
+      <button id="btnEntrarRepartidor">Entrar</button>
+      <p id="errorPass" style="color:red; display:none;">Contraseña incorrecta</p>
+    </div>
+  </div>
+
+  <div id="modalSuccess">
+    <div class="success-box">
+      <div class="circle">✔</div>
+      ¡Pedido realizado con éxito!
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('pedidoForm');
+    const modalSuccess = document.getElementById('modalSuccess');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const nombre = form.nombre.value.trim();
+      const direccion = form.direccion.value.trim();
+      const cantidad = form.cantidad.value;
+
+      if (!nombre || !direccion || !cantidad) return;
+
+      const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
+      pedidos.push({ id: Date.now(), nombre, direccion, cantidad, entregado: false });
+      localStorage.setItem('pedidos', JSON.stringify(pedidos));
+      form.reset();
+
+      modalSuccess.classList.add('active');
+
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = (Math.random() + 0.5) + 's';
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 2000);
+      }
+
+      setTimeout(() => {
+        modalSuccess.classList.remove('active');
+      }, 3000);
+    });
+
+    document.getElementById('iconRepartidor').addEventListener('click', () => {
+      document.getElementById('modalRepartidor').classList.add('active');
+    });
+
+    document.getElementById('btnEntrarRepartidor').addEventListener('click', () => {
+      const input = document.getElementById('passwordRepartidor');
+      const pass = input.value;
+      if (pass === '12345') {
+        window.location.href = 'repartidor.html';
+      } else {
+        document.getElementById('errorPass').style.display = 'block';
+      }
+    });
+
+    // Carrusel
+    const imagenes = ['images/publi1.png', 'images/publi2.png'];
+    let indice = 0;
+    const imgCarrusel = document.getElementById('imagenCarrusel');
+
+    setInterval(() => {
+      indice = (indice + 1) % imagenes.length;
+      imgCarrusel.style.opacity = 0;
+      setTimeout(() => {
+        imgCarrusel.src = imagenes[indice];
+        imgCarrusel.style.opacity = 1;
+      }, 500);
+    }, 6000);
+  </script>
+
+</body>
+</html>
